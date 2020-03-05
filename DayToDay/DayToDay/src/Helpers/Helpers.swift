@@ -9,7 +9,7 @@
 import Foundation
 
 extension String {
-    
+
     func getCurrentDate() -> String {
         
         let date = Date()
@@ -17,6 +17,19 @@ extension String {
         formatter.dateFormat = "yyyy-MM-dd"
         let result = formatter.string(from: date)
         return result
+    }
+    
+
+}
+
+class HelperClass {
+    
+    var showAlertClosure: (()->())?
+    
+    var alertMessage: String? {
+        didSet {
+            self.showAlertClosure?()
+        }
     }
 }
 

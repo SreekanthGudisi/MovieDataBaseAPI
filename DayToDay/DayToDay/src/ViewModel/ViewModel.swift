@@ -35,6 +35,24 @@ class ViewModel {
     }
     
     // Get data from API
+    func getMovieDataBaseAPIServiceCall() {
+        
+        _ = GetMovieDataBaseAPI.instance().getMovieDataBaseAPIServiceDetails() { (response) in
+            DispatchQueue.main.async {
+                guard response == nil else {
+                    // step4: do action (like display data on UI, or go to different screen..etc)
+                    print(response!)
+                    DispatchQueue.main.async {
+                        self.resultsArray = (response?.results!)!
+                        SharedInformation.instance().resultsResponse = response?.results
+                    }
+                    return
+                }
+            }
+        }
+    }
+    
+    // Get data from API
     func getServicecall() {
         
         let urlString: String = "https://api.themoviedb.org/3/discover/movie?api_key=\(GlobalVariableInformation.instance().apiKeyString)"

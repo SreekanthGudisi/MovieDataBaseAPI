@@ -235,7 +235,7 @@ extension ViewController {
 
             self.tableViewSetup()
             // API calling from ViewModel class
-            self.viewModel.getServicecall()
+            self.viewModel.getMovieDataBaseAPIServiceCall()
             self.closureSetUp()
             self.hideActivityIndicator()
         }
