@@ -33,11 +33,22 @@ class SaveCoreData {
             object?.setValue(result.vote_count, forKey: "vote_count")
             object?.setValue(result.video, forKey: "video")
             
-            let imgUrl = "https://image.tmdb.org/t/p/w500" + result.poster_path!
-            print("imgUrl", imgUrl)
-            let convertTodata: NSData? = imgUrl.data(using: .utf8) as NSData?
-            print("convertTodata", convertTodata as Any)
-            object?.setValue(convertTodata, forKey: "poster_path")
+            let img = "https://image.tmdb.org/t/p/w500" + result.poster_path!
+            print("imgUrl", img)
+            let data = img.data(using: .utf8)
+            print("convertTodata", data as Any)
+//            selectedImageOrDocumentURLData = data! as Data
+//
+//            if let img = "https://image.tmdb.org/t/p/w500" + result.poster_path! {
+//                let data = img.pngData() as NSData?
+//                selectedImageOrDocumentURLData = data! as Data
+//            }
+//
+//            let imgUrl = "https://image.tmdb.org/t/p/w500" + result.poster_path!
+//            print("imgUrl", imgUrl)
+//            let convertTodata: NSData? = imgUrl.data(using: .utf8) as NSData?
+//            print("convertTodata", convertTodata as Any)
+            object?.setValue(data, forKey: "poster_path")
             
             object?.setValue(result.id, forKey: "id")
             object?.setValue(result.adult, forKey: "adult")

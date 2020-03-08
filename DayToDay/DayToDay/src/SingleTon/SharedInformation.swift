@@ -14,6 +14,7 @@ class SharedInformation {
     
     var serachResponse :ResponseModel? = nil
     var resultsResponse : [Results]? = nil
+    var offlienSearchSelected = false
     
     static func instance() -> SharedInformation {
         if (sharedInformation == nil) {

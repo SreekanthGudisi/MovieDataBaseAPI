@@ -56,8 +56,9 @@ class ViewController: UIViewController {
         } else {
             print("Internet is not there")
             checkInternet = false
-    //        fetchAllDataFromCoredata()
-            fetchNewItems()
+            if SharedInformation.instance().offlienSearchSelected == false {
+                fetchNewItems()
+            }
         }
     }
 }
@@ -254,14 +255,14 @@ extension ViewController {
             })
             
         }else {
-            offlineResultsStroreArray = offlineResultsArray
+       //     offlineResultsStroreArray = offlineResultsArray
             fetchingMore = true
             fetchAllDataFromCoredata()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1 , execute: {
                 self.fetchingMore = false
                 self.itemsCount += self.OFFSET
-                if self.itemsCount > self.offlineResultsStroreArray.count {
-                    self.itemsCount = self.offlineResultsStroreArray.count
+                if self.itemsCount > self.offlineResultsArray.count {
+                    self.itemsCount = self.offlineResultsArray.count
                 }
                 self.tableView.reloadData()
             })

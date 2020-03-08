@@ -15,9 +15,6 @@ struct GlobalVariableInformation {
 
     // API Key
     var apiKeyString = "a37bdd7b84b703a56a33bbdf2e5ec716" // API Key
-    var pageSize = 5 //default will get 5 results
-    var page = 1
-    var totalItems = 0;
 
     static func instance() -> GlobalVariableInformation {
         if (globalVariableInformation == nil) {

@@ -24,6 +24,7 @@ class DetailsViewController: UIViewController {
 
         // Do any additional setup after loading the view.
         
+        SharedInformation.instance().offlienSearchSelected = true
         self.title = "Details"
         movieImage.image = deafultImage
         tableView.dataSource = self
