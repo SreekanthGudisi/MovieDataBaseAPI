@@ -12,6 +12,9 @@ For support, please feel free to contact me at https://www.linkedin.com/in/syeda
 */
 
 import Foundation
+import UIKit
+import CoreData
+
 struct Results : Codable {
 	let popularity : Double?
 	let vote_count : Int?
@@ -22,7 +25,7 @@ struct Results : Codable {
 	let backdrop_path : String?
 	let original_language : String?
 	let original_title : String?
-	let genre_ids : [Int]?
+//	let genre_ids : [Int]?
 	let title : String?
 	let vote_average : Double?
 	let overview : String?
@@ -39,7 +42,7 @@ struct Results : Codable {
 		case backdrop_path = "backdrop_path"
 		case original_language = "original_language"
 		case original_title = "original_title"
-		case genre_ids = "genre_ids"
+//		case genre_ids = "genre_ids"
 		case title = "title"
 		case vote_average = "vote_average"
 		case overview = "overview"
@@ -57,7 +60,7 @@ struct Results : Codable {
 		backdrop_path = try values.decodeIfPresent(String.self, forKey: .backdrop_path)
 		original_language = try values.decodeIfPresent(String.self, forKey: .original_language)
 		original_title = try values.decodeIfPresent(String.self, forKey: .original_title)
-		genre_ids = try values.decodeIfPresent([Int].self, forKey: .genre_ids)
+//		genre_ids = try values.decodeIfPresent([Int].self, forKey: .genre_ids)
 		title = try values.decodeIfPresent(String.self, forKey: .title)
 		vote_average = try values.decodeIfPresent(Double.self, forKey: .vote_average)
 		overview = try values.decodeIfPresent(String.self, forKey: .overview)
@@ -65,3 +68,42 @@ struct Results : Codable {
 	}
 
 }
+
+
+class SaveCoreData {
+    
+    private static var saveCoreData : SaveCoreData? = nil
+    
+    class func instance() -> SaveCoreData {
+        if (saveCoreData == nil) {
+            saveCoreData = SaveCoreData()
+        }
+        return saveCoreData!
+    }
+
+    // SaveCoreData
+    class func saveResultsResponse(_ data: Data?, _ results: [Results]) {
+        //save to core data
+        let object: NSManagedObject? = NSEntityDescription.insertNewObject(forEntityName: "Result", into: PersistenceService.context)
+        let jsonDecoder = JSONDecoder()
+        let loadResponseModel = try? jsonDecoder.decode(Results.self, from: data!)
+        object?.setValue(loadResponseModel?.popularity, forKey: "popularity")
+        object?.setValue(loadResponseModel?.vote_count, forKey: "vote_count")
+        object?.setValue(loadResponseModel?.video, forKey: "video")
+        object?.setValue(loadResponseModel?.poster_path, forKey: "poster_path")
+        object?.setValue(loadResponseModel?.id, forKey: "id")
+        object?.setValue(loadResponseModel?.adult, forKey: "adult")
+        object?.setValue(loadResponseModel?.backdrop_path, forKey: "backdrop_path")
+        object?.setValue(loadResponseModel?.original_language, forKey: "original_language")
+        object?.setValue(loadResponseModel?.original_title, forKey: "original_title")
+//        object?.setValue(loadResponseModel?.genre_ids, forKey: "genre_ids")
+        object?.setValue(loadResponseModel?.title, forKey: "title")
+        object?.setValue(loadResponseModel?.vote_average, forKey: "vote_average")
+        object?.setValue(loadResponseModel?.overview, forKey: "overview")
+        object?.setValue(loadResponseModel?.release_date, forKey: "release_date")
+        PersistenceService.saveContext()
+    }
+}
+
+
+

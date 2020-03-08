@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController {
     
@@ -24,9 +25,15 @@ class ViewController: UIViewController {
     var filteredData = [Results]()
     var isSeacrhActive = false
     var searchController : UISearchController!
+    var offlineResultsArray = [Result]()
+    var offlineResultsfilteredData = [Result]()
+    var checkInternet = false
     
     private var OFFSET = 7
     private var itemsCount = 0
+    
+    private var offset = 0
+    private var limit = 20
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,7 +47,19 @@ class ViewController: UIViewController {
         
         tableView.estimatedRowHeight = 100
         tableView.rowHeight = UITableView.automaticDimension
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
         
+        if Reachability.isConnectedToNetwork() == true {
+            checkInternet = true
+            print("Internet is there")
+        } else {
+            print("Internet is not there")
+            checkInternet = false
+            fetchAllDataFromCoredata()
+        }
     }
 }
 
@@ -64,43 +83,71 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if section == 0 {
-            
-            let numberOfRows = ((isSeacrhActive) ? filteredData.count : itemsCount)
-            return numberOfRows
-        } else if section == 1 && fetchingMore {
+        if checkInternet == true {
+            if section == 0 {
+                
+                let numberOfRows = ((isSeacrhActive) ? filteredData.count : itemsCount)
+                return numberOfRows
+            } else if section == 1 && fetchingMore {
 
-            return 1
+                return 1
+            }
+            return 0
+        }else {
+            if section == 0 {
+                
+                let numberOfRows = ((isSeacrhActive) ? filteredData.count : itemsCount)
+                return numberOfRows
+            } else if section == 1 && fetchingMore {
+
+                return 1
+            }
+            return 0
         }
-        return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        //pagination: load news items when it requires
-     //   checkForLastCell(with: indexPath)
+
         //setup
-        if indexPath.section == 0 {
+        if checkInternet == true {
             
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
-//            let data = (self.isSeacrhActive) ? self.filteredData[indexPath.row] : viewModel.resultsArray[indexPath.row]
-            let results = (self.isSeacrhActive) ? self.filteredData[indexPath.row] : viewModel.resultsArray[indexPath.row]
-            cell.movieImage.image = deafultImage
-            cell.titleLabel.text = results.original_title
-            cell.voteAverageLabel.text = results.vote_average?.description
-            return cell
+            if indexPath.section == 0 {
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
+                let results = (self.isSeacrhActive) ? self.filteredData[indexPath.row] : resultsArray[indexPath.row]
+                cell.movieImage.image = deafultImage
+                cell.titleLabel.text = results.original_title
+                cell.voteAverageLabel.text = results.vote_average?.description
+                return cell
+            } else {
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "loadingCell", for: indexPath) as! LoadingCell
+                cell.spinner.startAnimating()
+                return cell
+            }
         } else {
             
-            let cell = tableView.dequeueReusableCell(withIdentifier: "loadingCell", for: indexPath) as! LoadingCell
-            cell.spinner.startAnimating()
-            return cell
+            if indexPath.section == 0 {
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
+                let results = (self.isSeacrhActive) ? self.filteredData[indexPath.row] : resultsArray[indexPath.row]
+                cell.movieImage.image = deafultImage
+                cell.titleLabel.text = results.original_title
+                cell.voteAverageLabel.text = results.vote_average?.description
+                return cell
+            } else {
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "loadingCell", for: indexPath) as! LoadingCell
+                cell.spinner.startAnimating()
+                return cell
+            }
         }
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 
         
-        let posterPathArray = viewModel.resultsArray[indexPath.row]
+        let posterPathArray = resultsArray[indexPath.row]
         if posterPathArray.poster_path?.count == nil {
             (cell as? TableViewCell)?.movieImage.image = deafultImage
             print(indexPath.row)
@@ -139,6 +186,51 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        if checkInternet == true {
+            let storyBoard = UIStoryboard.init(name: "Main", bundle: nil)
+            let vc = storyBoard.instantiateViewController(withIdentifier: "DetailsViewController") as? DetailsViewController
+            vc!.results = self.isSeacrhActive ? self.filteredData[indexPath.row] : self.resultsArray[indexPath.row]
+            navigationController?.pushViewController(vc!, animated: true)
+        } else {
+            let storyBoard = UIStoryboard.init(name: "Main", bundle: nil)
+            let vc = storyBoard.instantiateViewController(withIdentifier: "DetailsViewController") as? DetailsViewController
+            vc!.offlineResult = self.isSeacrhActive ? self.offlineResultsfilteredData[indexPath.row] : self.offlineResultsArray[indexPath.row]
+            navigationController?.pushViewController(vc!, animated: true)
+        }
+    }
+    
+//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
+//    {
+//        let lastSectionIndex = tableView.numberOfSections - 1
+//        let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
+//        if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex {
+//            // print("this is the last cell")
+//            let spinner = UIActivityIndicatorView(style: .gray)
+//            spinner.tintColor = UIColor(displayP3Red:63.0/255.0, green:188.0/255.0 , blue:223.0/255.0, alpha:1.0)
+//            spinner.startAnimating()
+//            spinner.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
+//
+//            self.tableView.tableFooterView = spinner
+//            self.tableView!.tableFooterView?.isHidden = false
+//
+//            self.limit = limit + 10
+//
+//            if(self.remainingCountData == 0) {
+//                self.tableView.tableFooterView?.isHidden = true
+//                self.tableView.tableFooterView = UIView(frame:.zero)
+//            }
+//            else {
+//                ApplicantsHistory(limit: "\(self.limit)")
+//            }
+//    }
+//    }
+//
+}
+
+extension ViewController {
+    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let endScrolling: CGFloat = scrollView.contentOffset.y + scrollView.frame.size.height
 
@@ -147,7 +239,6 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
                 fetchNewItems()
             }
         }
-        
 //        let offsetY = scrollView.contentOffset.y
 //        let contentHeight = scrollView.contentSize.height
 //        if offsetY > (contentHeight - scrollView.frame.height) {
@@ -161,6 +252,8 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
     // Checking Cell
     func fetchNewItems() {
         
+        resultsArray = viewModel.resultsArray
+        
         //first Show Indicator
         DispatchQueue.main.async {
             self.tableView.reloadSections(IndexSet(integer: 1), with: .bottom)
@@ -172,8 +265,8 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
             self.fetchingMore = false
             self.itemsCount += self.OFFSET
-            if self.itemsCount > self.viewModel.resultsArray.count {
-                self.itemsCount = self.viewModel.resultsArray.count
+            if self.itemsCount > self.resultsArray.count {
+                self.itemsCount = self.resultsArray.count
             }
             self.tableView.reloadData()
         })
@@ -236,6 +329,7 @@ extension ViewController {
             self.tableViewSetup()
             // API calling from ViewModel class
             self.viewModel.getMovieDataBaseAPIServiceCall()
+            SaveCoreData.saveResultsResponse(<#T##data: Data?##Data?#>, self.viewModel.resultsArray)
             self.closureSetUp()
             self.hideActivityIndicator()
         }
@@ -270,19 +364,37 @@ extension ViewController : UISearchBarDelegate, UISearchResultsUpdating {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         isSeacrhActive = false
-        guard searchText.lengthOfBytes(using: String.Encoding.utf8) == 0 else {
+        if checkInternet == true {
             
+            guard searchText.lengthOfBytes(using: String.Encoding.utf8) == 0 else {
+                
+                filteredData.removeAll()
+                filteredData = resultsArray.filter({ (movie) -> Bool in
+                    return (movie.original_title!.lowercased().contains(searchText.lowercased()))
+                })
+                isSeacrhActive = true
+                tableView!.reloadData()
+                return
+            }
+            //search text is empty, so reload with original orgs
             filteredData.removeAll()
-            filteredData = viewModel.resultsArray.filter({ (user) -> Bool in
-                return (user.original_title!.lowercased().contains(searchText.lowercased()))
-            })
-            isSeacrhActive = true
             tableView!.reloadData()
-            return
+        } else {
+            
+            guard searchText.lengthOfBytes(using: String.Encoding.utf8) == 0 else {
+                
+                offlineResultsfilteredData.removeAll()
+                offlineResultsfilteredData = offlineResultsArray.filter({ (movie) -> Bool in
+                    return (movie.original_title!.lowercased().contains(searchText.lowercased()))
+                })
+                isSeacrhActive = true
+                tableView!.reloadData()
+                return
+            }
+            //search text is empty, so reload with original orgs
+            filteredData.removeAll()
+            tableView!.reloadData()
         }
-        //search text is empty, so reload with original orgs
-        filteredData.removeAll()
-        tableView!.reloadData()
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -296,6 +408,37 @@ extension ViewController : UISearchBarDelegate, UISearchResultsUpdating {
             isSeacrhActive = false
             filteredData.removeAll()
             tableView!.reloadData()
+        }
+    }
+}
+
+extension ViewController {
+    
+    // Fetch AllData From PersistenceSerivce
+    func fetchAllDataFromCoredata() {
+        
+        let context = PersistenceService.context
+        let fetchRequest = NSFetchRequest<Result>(entityName: "Result")
+        fetchRequest.returnsObjectsAsFaults = true
+        offlineResultsArray.removeAll()
+        do {
+            offlineResultsArray = try context.fetch(fetchRequest)
+            print(offlineResultsArray)
+        } catch {
+            print("Unable to fetch from Coredata", error)
+        }
+        tableView.reloadData()
+    }
+}
+
+extension ViewController {
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "DetailsTableViewCell" {
+            if let vc = segue.destination as? DetailsTableViewCell {
+//                print(brandName)
+//                vc.brandName = self.brandName
+            }
         }
     }
 }

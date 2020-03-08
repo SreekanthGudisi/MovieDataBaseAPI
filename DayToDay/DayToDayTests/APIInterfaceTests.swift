@@ -26,18 +26,43 @@ class APIInterfaceTests: XCTestCase {
 
     func testBaseURL() {
 
-//        // When fetch popular photo
         let expect = XCTestExpectation(description: "callback")
 
-        let error = APIError.notProperBaseURL
-        
-        if APIInterface.baseURL != "https://api.themoviedb.org/3/discove" {
+        if APIInterface.baseURL != "https://api.themoviedb.org/3/discover" {
             expect.fulfill()
-            XCTAssertNotEqual(helperClass?.alertMessage, error.rawValue)
+            XCTAssert(false, "Base URL is not matching")
         } else {
-            
-     //       print("the base URL is correct")
+            expect.fulfill()
+            XCTAssert(true, "Base URL is matching")
         }
-        wait(for: [expect], timeout: 20.0)
+        wait(for: [expect], timeout: 30.0)
+    }
+    
+    func testMethodURL() {
+
+        let expect = XCTestExpectation(description: "callback")
+
+        if GetMovieDataBaseAPI.methodName != "/movie?api_key=" {
+            expect.fulfill()
+            XCTAssert(false, "Method name is not matching")
+        } else {
+            expect.fulfill()
+            XCTAssert(true, "Method name is matching")
+        }
+        wait(for: [expect], timeout: 30.0)
+    }
+    
+    func testAPIKeyURL() {
+
+        let expect = XCTestExpectation(description: "callback")
+
+        if GlobalVariableInformation.instance().apiKeyString != "a37bdd7b84b703a56a33bbdf2e5ec716" {
+            expect.fulfill()
+            XCTAssert(false, "Method name is not matching")
+        } else {
+            expect.fulfill()
+            XCTAssert(true, "Method name is matching")
+        }
+        wait(for: [expect], timeout: 30.0)
     }
 }
