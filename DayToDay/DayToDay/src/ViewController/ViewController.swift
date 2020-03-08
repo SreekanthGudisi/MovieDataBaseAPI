@@ -186,15 +186,30 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
                 task.resume()
             }
         } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
             let results = offlineResultsArray[indexPath.row]
-            (cell as? TableViewCell)?.movieImage.clipsToBounds = true
-            (cell as? TableViewCell)?.movieImage.layer.cornerRadius = 10
+            cell.movieImage.clipsToBounds = true
+            cell.movieImage.layer.cornerRadius = 10
             print("results.poster_path", results.poster_path as Any)
             if results.poster_path == nil {
-                (cell as? TableViewCell)?.movieImage.image = deafultImage
+                cell.movieImage.image = deafultImage
             } else{
-                (cell as? TableViewCell)?.movieImage.image = UIImage(data: results.poster_path!)
+        //        (cell as? TableViewCell)?.movieImage.image = UIImage(data: results.poster_path!)
+                
+                if let imageData = results.poster_path as! Data? {
+                 //
+                    let coredataLoadedimage = UIImage(data: imageData)
+                    cell.movieImage.image = coredataLoadedimage
+                }
+                
+//                let imageData = results.poster_path!
+//                let coredataLoadedimage = UIImage(data: imageData)
+//                cell.movieImage.image = coredataLoadedimage
             }
+            
+//            let imageData = results.poster_path!
+//            let coredataLoadedimage = UIImage(data: imageData)
+//            cell.movieImage.image = coredataLoadedimage
         }
     }
     
@@ -219,6 +234,7 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+//MARK:- UISearchDelegate
 extension ViewController {
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -228,44 +244,6 @@ extension ViewController {
             if !fetchingMore {
                 fetchNewItems()
             }
-        }
-    }
-    
-    // Checking Cell
-    private func fetchNewItems() {
-        
-        //first Show Indicator
-        DispatchQueue.main.async {
-            self.tableView.reloadSections(IndexSet(integer: 1), with: .bottom)
-            self.tableView.scrollToRow(at: IndexPath(item: 0, section: 1),
-                                       at: .bottom,
-                                       animated: true)
-        }
-        
-        if checkInternet == true {
-            resultsArray = viewModel.resultsArray
-            fetchingMore = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1 , execute: {
-                self.fetchingMore = false
-                self.itemsCount += self.OFFSET
-                if self.itemsCount > self.resultsArray.count {
-                    self.itemsCount = self.resultsArray.count
-                }
-                self.tableView.reloadData()
-            })
-            
-        }else {
-       //     offlineResultsStroreArray = offlineResultsArray
-            fetchingMore = true
-            fetchAllDataFromCoredata()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1 , execute: {
-                self.fetchingMore = false
-                self.itemsCount += self.OFFSET
-                if self.itemsCount > self.offlineResultsArray.count {
-                    self.itemsCount = self.offlineResultsArray.count
-                }
-                self.tableView.reloadData()
-            })
         }
     }
 }
@@ -345,6 +323,44 @@ extension ViewController {
             }
         }
     }
+    
+    // Checking Cell
+    private func fetchNewItems() {
+        
+        //first Show Indicator
+        DispatchQueue.main.async {
+            self.tableView.reloadSections(IndexSet(integer: 1), with: .bottom)
+            self.tableView.scrollToRow(at: IndexPath(item: 0, section: 1),
+                                       at: .bottom,
+                                       animated: true)
+        }
+        
+        if checkInternet == true {
+            resultsArray = viewModel.resultsArray
+            fetchingMore = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1 , execute: {
+                self.fetchingMore = false
+                self.itemsCount += self.OFFSET
+                if self.itemsCount > self.resultsArray.count {
+                    self.itemsCount = self.resultsArray.count
+                }
+                self.tableView.reloadData()
+            })
+            
+        }else {
+       //     offlineResultsStroreArray = offlineResultsArray
+            fetchingMore = true
+            fetchAllDataFromCoredata()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1 , execute: {
+                self.fetchingMore = false
+                self.itemsCount += self.OFFSET
+                if self.itemsCount > self.offlineResultsArray.count {
+                    self.itemsCount = self.offlineResultsArray.count
+                }
+                self.tableView.reloadData()
+            })
+        }
+    }
 }
 
 //MARK:- SearchBar
@@ -405,9 +421,9 @@ extension ViewController : UISearchBarDelegate, UISearchResultsUpdating {
     }
 }
 
+//MARK:- Fetch CoreData From PersistenceSerivce
 extension ViewController {
     
-    // Fetch AllData From PersistenceSerivce
     private func fetchAllDataFromCoredata() {
         
         let context = PersistenceService.context
