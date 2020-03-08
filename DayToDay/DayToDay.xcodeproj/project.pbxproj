@@ -15,7 +15,6 @@
 		206E3FF42413FFD400171E22 /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FF32413FFD400171E22 /* DetailsViewController.swift */; };
 		206E3FF62413FFE100171E22 /* DetailsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FF52413FFE100171E22 /* DetailsTableViewCell.swift */; };
 		209BC55D240E2884004D4E7D /* DayToDay.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 209BC55B240E2884004D4E7D /* DayToDay.xcdatamodeld */; };
-		209BC56D240E2889004D4E7D /* DayToDayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 209BC56C240E2889004D4E7D /* DayToDayTests.swift */; };
 		209BC578240E2889004D4E7D /* DayToDayUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 209BC577240E2889004D4E7D /* DayToDayUITests.swift */; };
 		209BC5E2240E518E004D4E7D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 209BC5C9240E518E004D4E7D /* LaunchScreen.storyboard */; };
 		209BC5E3240E518E004D4E7D /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 209BC5CB240E518E004D4E7D /* ViewModel.swift */; };
@@ -67,7 +66,6 @@
 		209BC55C240E2884004D4E7D /* DayToDay.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DayToDay.xcdatamodel; sourceTree = "<group>"; };
 		209BC563240E2888004D4E7D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		209BC568240E2889004D4E7D /* DayToDayTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DayToDayTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		209BC56C240E2889004D4E7D /* DayToDayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayToDayTests.swift; sourceTree = "<group>"; };
 		209BC56E240E2889004D4E7D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		209BC573240E2889004D4E7D /* DayToDayUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DayToDayUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		209BC577240E2889004D4E7D /* DayToDayUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayToDayUITests.swift; sourceTree = "<group>"; };
@@ -186,7 +184,6 @@
 			isa = PBXGroup;
 			children = (
 				209BC63A240FA467004D4E7D /* APIInterfaceTests.swift */,
-				209BC56C240E2889004D4E7D /* DayToDayTests.swift */,
 				209BC56E240E2889004D4E7D /* Info.plist */,
 			);
 			path = DayToDayTests;
@@ -497,7 +494,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				209BC63B240FA467004D4E7D /* APIInterfaceTests.swift in Sources */,
-				209BC56D240E2889004D4E7D /* DayToDayTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
