@@ -18,7 +18,6 @@ class ViewController: UIViewController {
     
     // Class Varibles
     private var viewModel = ViewModel()
-
     private var deafultImage = UIImage(named: "Empty-Image")
     private var fetchingMore = false
     private var resultsArray = [Results]()
@@ -194,22 +193,11 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
             if results.poster_path == nil {
                 cell.movieImage.image = deafultImage
             } else{
-        //        (cell as? TableViewCell)?.movieImage.image = UIImage(data: results.poster_path!)
-                
-                if let imageData = results.poster_path as! Data? {
-                 //
+                if let imageData = results.poster_path {
                     let coredataLoadedimage = UIImage(data: imageData)
                     cell.movieImage.image = coredataLoadedimage
                 }
-                
-//                let imageData = results.poster_path!
-//                let coredataLoadedimage = UIImage(data: imageData)
-//                cell.movieImage.image = coredataLoadedimage
             }
-            
-//            let imageData = results.poster_path!
-//            let coredataLoadedimage = UIImage(data: imageData)
-//            cell.movieImage.image = coredataLoadedimage
         }
     }
     
@@ -348,7 +336,6 @@ extension ViewController {
             })
             
         }else {
-       //     offlineResultsStroreArray = offlineResultsArray
             fetchingMore = true
             fetchAllDataFromCoredata()
             DispatchQueue.main.asyncAfter(deadline: .now() + 1 , execute: {

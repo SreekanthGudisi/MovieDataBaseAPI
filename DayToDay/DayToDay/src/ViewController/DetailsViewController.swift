@@ -10,9 +10,11 @@ import UIKit
 
 class DetailsViewController: UIViewController {
 
+    // Class Outlets
     @IBOutlet weak var movieImage: UIImageView!
     @IBOutlet weak var tableView: UITableView!
     
+    // Class Varibles
     private var deafultImage = UIImage(named: "Empty-Image")
     var results : Results? = nil
     var offlineResult : OfflineResults? = nil
@@ -47,6 +49,7 @@ class DetailsViewController: UIViewController {
     }
 }
 
+//MARK:- UITableView
 extension DetailsViewController : UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {

@@ -33,7 +33,6 @@ class ViewModel {
                     self.resultsArray = SharedInformation.instance().resultsResponse!
                 }
             }
-            print(sussues)
         }
     }
 }

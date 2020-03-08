@@ -18,7 +18,6 @@ class DetailsTableViewCell: UITableViewCell {
     @IBOutlet weak var genersLabel: UILabel!
     @IBOutlet weak var ratingLabel: UILabel!
     @IBOutlet weak var aboutLabel: UILabel!
-    @IBOutlet weak var castLabel: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

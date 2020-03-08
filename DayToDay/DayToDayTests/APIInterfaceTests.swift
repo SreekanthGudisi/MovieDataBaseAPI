@@ -12,7 +12,6 @@ import XCTest
 class APIInterfaceTests: XCTestCase {
     
     var apiInterface: APIInterface?
-    var helperClass: HelperClass?
     
     override func setUp() {
         super.setUp()
