@@ -24,22 +24,16 @@ class ViewModel {
     }
     
     // Get data from API
-    func getMovieDataBaseAPIServiceCall() {
+    public func getMovieDataBaseAPIServiceCall() {
         
-        _ = GetMovieDataBaseAPI.instance().getMovieDataBaseAPIServiceDetails() { (response) in
-            DispatchQueue.main.async {
-                guard response == nil else {
-                    // step4: do action (like display data on UI, or go to different screen..etc)
-                    print(response!)
-                    let data = Data()
-                    DispatchQueue.main.async {
-                        SaveCoreData.saveResultsResponse(data, (response?.results!)!)
-                        self.resultsArray = (response?.results!)!
-                        SharedInformation.instance().resultsResponse = response?.results
-                    }
-                    return
+        GetMovieDataBaseAPI.instance().getMovieDataBaseAPIServiceDetails { (sussues) in
+         
+            if sussues == true {
+                DispatchQueue.main.async {
+                    self.resultsArray = SharedInformation.instance().resultsResponse!
                 }
             }
+            print(sussues)
         }
     }
 }

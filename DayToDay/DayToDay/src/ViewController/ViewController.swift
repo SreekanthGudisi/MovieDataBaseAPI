@@ -17,23 +17,21 @@ class ViewController: UIViewController {
     @IBOutlet weak var searchBar: UISearchBar!
     
     // Class Varibles
-    var viewModel = ViewModel()
+    private var viewModel = ViewModel()
 
-    var deafultImage = UIImage(named: "Empty-Image")
-    var fetchingMore = false
-    var resultsArray = [Results]()
-    var filteredData = [Results]()
-    var isSeacrhActive = false
-    var searchController : UISearchController!
-    var offlineResultsArray = [Result]()
-    var offlineResultsfilteredData = [Result]()
-    var checkInternet = false
+    private var deafultImage = UIImage(named: "Empty-Image")
+    private var fetchingMore = false
+    private var resultsArray = [Results]()
+    private var filteredData = [Results]()
+    private var isSeacrhActive = false
+    private var searchController : UISearchController!
+    private var offlineResultsStroreArray = [OfflineResults]()
+    private var offlineResultsArray = [OfflineResults]()
+    private var offlineResultsfilteredData = [OfflineResults]()
+    private var checkInternet = false
     
     private var OFFSET = 7
     private var itemsCount = 0
-    
-    private var offset = 0
-    private var limit = 20
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,12 +51,13 @@ class ViewController: UIViewController {
         super.viewDidAppear(true)
         
         if Reachability.isConnectedToNetwork() == true {
-            checkInternet = true
             print("Internet is there")
+            checkInternet = true
         } else {
             print("Internet is not there")
             checkInternet = false
-            fetchAllDataFromCoredata()
+    //        fetchAllDataFromCoredata()
+            fetchNewItems()
         }
     }
 }
@@ -96,7 +95,7 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
         }else {
             if section == 0 {
                 
-                let numberOfRows = ((isSeacrhActive) ? filteredData.count : itemsCount)
+                let numberOfRows = ((isSeacrhActive) ? offlineResultsfilteredData.count : itemsCount)
                 return numberOfRows
             } else if section == 1 && fetchingMore {
 
@@ -130,10 +129,10 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
             if indexPath.section == 0 {
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
-                let results = (self.isSeacrhActive) ? self.filteredData[indexPath.row] : resultsArray[indexPath.row]
+                let results = (self.isSeacrhActive) ? self.offlineResultsfilteredData[indexPath.row] : offlineResultsArray[indexPath.row]
                 cell.movieImage.image = deafultImage
                 cell.titleLabel.text = results.original_title
-                cell.voteAverageLabel.text = results.vote_average?.description
+                cell.voteAverageLabel.text = results.vote_average.description
                 return cell
             } else {
                 
@@ -146,87 +145,77 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 
-        
-        let posterPathArray = resultsArray[indexPath.row]
-        if posterPathArray.poster_path?.count == nil {
-            (cell as? TableViewCell)?.movieImage.image = deafultImage
-            print(indexPath.row)
-            return
-        } else {
-            print(posterPathArray.poster_path as Any)
-            // Checking Cache
-            if let dict = UserDefaults.standard.object(forKey: "ImageCache") as? [String:String]{
-                if let path = dict["https://image.tmdb.org/t/p/w500" + (posterPathArray.poster_path!)] {
-                    if let data = try? Data(contentsOf: URL(fileURLWithPath: path)) {
-                        let img = UIImage(data: data)
-                        // If cache is there, Loading into cell from Cache
-                        (cell as? TableViewCell)?.movieImage.image = img
+        if checkInternet == true {
+            
+            let posterPathArray = resultsArray[indexPath.row]
+            if posterPathArray.poster_path?.count == nil {
+                (cell as? TableViewCell)?.movieImage.image = deafultImage
+                print(indexPath.row)
+                return
+            } else {
+                print(posterPathArray.poster_path as Any)
+                // Checking Cache
+                if let dict = UserDefaults.standard.object(forKey: "ImageCache") as? [String:String]{
+                    if let path = dict["https://image.tmdb.org/t/p/w500" + (posterPathArray.poster_path!)] {
+                        if let data = try? Data(contentsOf: URL(fileURLWithPath: path)) {
+                            let img = UIImage(data: data)
+                            // If cache is there, Loading into cell from Cache
+                            (cell as? TableViewCell)?.movieImage.image = img
+                            return
+                        }
+                    }
+                }
+                //lazy loading
+                let session = URLSession.shared
+                let imageURL = URL(string: "https://image.tmdb.org/t/p/w500" + (posterPathArray.poster_path!))
+                let task = session.dataTask(with: imageURL!) { (data, response, error) in
+                    guard error == nil else {
                         return
                     }
-                }
-            }
-            //lazy loading
-            let session = URLSession.shared
-            let imageURL = URL(string: "https://image.tmdb.org/t/p/w500" + (posterPathArray.poster_path!))
-            let task = session.dataTask(with: imageURL!) { (data, response, error) in
-                guard error == nil else {
-                    return
-                }
-                DispatchQueue.main.async {
-                    NSLog("cell number \(indexPath.row)")
-                    if let image = UIImage(data: data!) {
-                        // calling from API
-                        (cell as? TableViewCell)?.movieImage.image = image
-                        // StoringImages into Cache
-                        StorageImageViewController.storeImage(urlstring: (posterPathArray.poster_path!) as String, img: image)
+                    DispatchQueue.main.async {
+                        NSLog("cell number \(indexPath.row)")
+                        if let image = UIImage(data: data!) {
+                            // calling from API
+                            (cell as? TableViewCell)?.movieImage.image = image
+                            // StoringImages into Cache
+                            StorageImageViewController.storeImage(urlstring: (posterPathArray.poster_path!) as String, img: image)
+                        }
                     }
                 }
+                task.resume()
             }
-            task.resume()
+        } else {
+            let results = offlineResultsArray[indexPath.row]
+            (cell as? TableViewCell)?.movieImage.clipsToBounds = true
+            (cell as? TableViewCell)?.movieImage.layer.cornerRadius = 10
+            print("results.poster_path", results.poster_path as Any)
+            if results.poster_path == nil {
+                (cell as? TableViewCell)?.movieImage.image = deafultImage
+            } else{
+                (cell as? TableViewCell)?.movieImage.image = UIImage(data: results.poster_path!)
+            }
         }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
+        let indexPath = tableView.indexPathForSelectedRow //optional, to get from any UIButton for example
+        let cell = tableView.cellForRow(at: indexPath!) as! TableViewCell
+
         if checkInternet == true {
             let storyBoard = UIStoryboard.init(name: "Main", bundle: nil)
             let vc = storyBoard.instantiateViewController(withIdentifier: "DetailsViewController") as? DetailsViewController
-            vc!.results = self.isSeacrhActive ? self.filteredData[indexPath.row] : self.resultsArray[indexPath.row]
+            vc!.results = self.isSeacrhActive ? self.filteredData[indexPath!.row] : self.resultsArray[indexPath!.row]
+            vc?.newImage = cell.movieImage.image
             navigationController?.pushViewController(vc!, animated: true)
         } else {
             let storyBoard = UIStoryboard.init(name: "Main", bundle: nil)
             let vc = storyBoard.instantiateViewController(withIdentifier: "DetailsViewController") as? DetailsViewController
-            vc!.offlineResult = self.isSeacrhActive ? self.offlineResultsfilteredData[indexPath.row] : self.offlineResultsArray[indexPath.row]
+            vc!.offlineResult = self.isSeacrhActive ? self.offlineResultsfilteredData[indexPath!.row] : self.offlineResultsArray[indexPath!.row]
+            vc?.newImage = cell.movieImage.image
             navigationController?.pushViewController(vc!, animated: true)
         }
     }
-    
-//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath)
-//    {
-//        let lastSectionIndex = tableView.numberOfSections - 1
-//        let lastRowIndex = tableView.numberOfRows(inSection: lastSectionIndex) - 1
-//        if indexPath.section ==  lastSectionIndex && indexPath.row == lastRowIndex {
-//            // print("this is the last cell")
-//            let spinner = UIActivityIndicatorView(style: .gray)
-//            spinner.tintColor = UIColor(displayP3Red:63.0/255.0, green:188.0/255.0 , blue:223.0/255.0, alpha:1.0)
-//            spinner.startAnimating()
-//            spinner.frame = CGRect(x: CGFloat(0), y: CGFloat(0), width: tableView.bounds.width, height: CGFloat(44))
-//
-//            self.tableView.tableFooterView = spinner
-//            self.tableView!.tableFooterView?.isHidden = false
-//
-//            self.limit = limit + 10
-//
-//            if(self.remainingCountData == 0) {
-//                self.tableView.tableFooterView?.isHidden = true
-//                self.tableView.tableFooterView = UIView(frame:.zero)
-//            }
-//            else {
-//                ApplicantsHistory(limit: "\(self.limit)")
-//            }
-//    }
-//    }
-//
 }
 
 extension ViewController {
@@ -239,20 +228,10 @@ extension ViewController {
                 fetchNewItems()
             }
         }
-//        let offsetY = scrollView.contentOffset.y
-//        let contentHeight = scrollView.contentSize.height
-//        if offsetY > (contentHeight - scrollView.frame.height) {
-//            // fetchMethod
-//            if !fetchingMore {
-//                fetchNewItems()
-//            }
-//        }
     }
     
     // Checking Cell
-    func fetchNewItems() {
-        
-        resultsArray = viewModel.resultsArray
+    private func fetchNewItems() {
         
         //first Show Indicator
         DispatchQueue.main.async {
@@ -261,29 +240,42 @@ extension ViewController {
                                        at: .bottom,
                                        animated: true)
         }
-        fetchingMore = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-            self.fetchingMore = false
-            self.itemsCount += self.OFFSET
-            if self.itemsCount > self.resultsArray.count {
-                self.itemsCount = self.resultsArray.count
-            }
-            self.tableView.reloadData()
-        })
+        
+        if checkInternet == true {
+            resultsArray = viewModel.resultsArray
+            fetchingMore = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1 , execute: {
+                self.fetchingMore = false
+                self.itemsCount += self.OFFSET
+                if self.itemsCount > self.resultsArray.count {
+                    self.itemsCount = self.resultsArray.count
+                }
+                self.tableView.reloadData()
+            })
+            
+        }else {
+            offlineResultsStroreArray = offlineResultsArray
+            fetchingMore = true
+            fetchAllDataFromCoredata()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1 , execute: {
+                self.fetchingMore = false
+                self.itemsCount += self.OFFSET
+                if self.itemsCount > self.offlineResultsStroreArray.count {
+                    self.itemsCount = self.offlineResultsStroreArray.count
+                }
+                self.tableView.reloadData()
+            })
+        }
     }
 }
 
 //MARK:- Functions
 extension ViewController {
     
-    func initialMethod() {
+    private func initialMethod() {
 
         // Navigation Title
         navigationItem.title = "Movies"
-        
-        // Tableview Set Delegate And DataSource
-        tableView.delegate = self
-        tableView.dataSource = self
         
         // Call XIB
         let loadingNib = UINib(nibName: "LoadingCell", bundle: nil)
@@ -294,7 +286,7 @@ extension ViewController {
     }
     
     // Show Activity Indicator
-    func showActivityIndicator() {
+    private func showActivityIndicator() {
         
         DispatchQueue.main.async {
             
@@ -304,7 +296,7 @@ extension ViewController {
     }
     
     // Hide Activity Indicator
-    func hideActivityIndicator() {
+    private func hideActivityIndicator() {
 
         DispatchQueue.main.async {
             
@@ -314,14 +306,14 @@ extension ViewController {
     }
     
     // TableViewSetUp
-    func tableViewSetup()  {
+    private func tableViewSetup()  {
         
         tableView.dataSource = self
         tableView.delegate = self
     }
 
     // Initial page settings
-    func pageSetup()  {
+    private func pageSetup()  {
         
         showActivityIndicator()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -329,15 +321,15 @@ extension ViewController {
             self.tableViewSetup()
             // API calling from ViewModel class
             self.viewModel.getMovieDataBaseAPIServiceCall()
-            SaveCoreData.saveResultsResponse(<#T##data: Data?##Data?#>, self.viewModel.resultsArray)
             self.closureSetUp()
             self.hideActivityIndicator()
         }
     }
     
     // Closure initialize
-    func closureSetUp()  {
+    private func closureSetUp()  {
         
+        showActivityIndicator()
         viewModel.reloadList = { [weak self] ()  in
             // UI changes in main tread
             DispatchQueue.main.async {
@@ -415,10 +407,10 @@ extension ViewController : UISearchBarDelegate, UISearchResultsUpdating {
 extension ViewController {
     
     // Fetch AllData From PersistenceSerivce
-    func fetchAllDataFromCoredata() {
+    private func fetchAllDataFromCoredata() {
         
         let context = PersistenceService.context
-        let fetchRequest = NSFetchRequest<Result>(entityName: "Result")
+        let fetchRequest = NSFetchRequest<OfflineResults>(entityName: "OfflineResults")
         fetchRequest.returnsObjectsAsFaults = true
         offlineResultsArray.removeAll()
         do {
@@ -427,20 +419,7 @@ extension ViewController {
         } catch {
             print("Unable to fetch from Coredata", error)
         }
-        tableView.reloadData()
+        self.tableView.reloadData()
     }
 }
-
-extension ViewController {
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "DetailsTableViewCell" {
-            if let vc = segue.destination as? DetailsTableViewCell {
-//                print(brandName)
-//                vc.brandName = self.brandName
-            }
-        }
-    }
-}
-
 

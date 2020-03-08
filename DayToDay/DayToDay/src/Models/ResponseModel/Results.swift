@@ -66,43 +66,6 @@ struct Results : Codable {
 		overview = try values.decodeIfPresent(String.self, forKey: .overview)
 		release_date = try values.decodeIfPresent(String.self, forKey: .release_date)
 	}
-
-}
-
-
-class SaveCoreData {
-    
-    private static var saveCoreData : SaveCoreData? = nil
-    
-    class func instance() -> SaveCoreData {
-        if (saveCoreData == nil) {
-            saveCoreData = SaveCoreData()
-        }
-        return saveCoreData!
-    }
-
-    // SaveCoreData
-    class func saveResultsResponse(_ data: Data?, _ results: [Results]) {
-        //save to core data
-        let object: NSManagedObject? = NSEntityDescription.insertNewObject(forEntityName: "Result", into: PersistenceService.context)
-        let jsonDecoder = JSONDecoder()
-        let loadResponseModel = try? jsonDecoder.decode(Results.self, from: data!)
-        object?.setValue(loadResponseModel?.popularity, forKey: "popularity")
-        object?.setValue(loadResponseModel?.vote_count, forKey: "vote_count")
-        object?.setValue(loadResponseModel?.video, forKey: "video")
-        object?.setValue(loadResponseModel?.poster_path, forKey: "poster_path")
-        object?.setValue(loadResponseModel?.id, forKey: "id")
-        object?.setValue(loadResponseModel?.adult, forKey: "adult")
-        object?.setValue(loadResponseModel?.backdrop_path, forKey: "backdrop_path")
-        object?.setValue(loadResponseModel?.original_language, forKey: "original_language")
-        object?.setValue(loadResponseModel?.original_title, forKey: "original_title")
-//        object?.setValue(loadResponseModel?.genre_ids, forKey: "genre_ids")
-        object?.setValue(loadResponseModel?.title, forKey: "title")
-        object?.setValue(loadResponseModel?.vote_average, forKey: "vote_average")
-        object?.setValue(loadResponseModel?.overview, forKey: "overview")
-        object?.setValue(loadResponseModel?.release_date, forKey: "release_date")
-        PersistenceService.saveContext()
-    }
 }
 
 

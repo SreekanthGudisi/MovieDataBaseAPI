@@ -13,11 +13,11 @@ class DetailsViewController: UIViewController {
     @IBOutlet weak var movieImage: UIImageView!
     @IBOutlet weak var tableView: UITableView!
     
-    var deafultImage = UIImage(named: "Empty-Image")
+    private var deafultImage = UIImage(named: "Empty-Image")
     var results : Results? = nil
-    var offlineResult : Result? = nil
-    var checkInternet = false
-    typealias DATASOURCE = UITableViewDataSource
+    var offlineResult : OfflineResults? = nil
+    private var checkInternet = false
+    var newImage: UIImage!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,17 +25,24 @@ class DetailsViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         self.title = "Details"
-        tableView.dataSource = self
         movieImage.image = deafultImage
-        print(results!)
+        tableView.dataSource = self
+        if Reachability.isConnectedToNetwork() == true {
+            print("Internet is there")
+            checkInternet = true
+        } else {
+            print("Internet is not there")
+            checkInternet = false
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         
-        imageDownload()
+        movieImage.image = newImage
         tableView.estimatedRowHeight = 100
         tableView.rowHeight = UITableView.automaticDimension
+        tableView.reloadData()
     }
 }
 
@@ -71,26 +78,6 @@ extension DetailsViewController : UITableViewDataSource {
         if checkInternet == true {
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "DetailsTableViewCell", for: indexPath) as! DetailsTableViewCell
-            let attributsBold = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16, weight: .bold)]
-            let attributsNormal = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16, weight: .regular)]
-            let attributedString = NSMutableAttributedString(string: (results?.original_title!.description)!, attributes:attributsNormal)
-            let boldStringPart = NSMutableAttributedString(string: "Duration :", attributes:attributsBold)
-            attributedString.append(boldStringPart)
-            cell.durationLabel.attributedText = attributedString
-
-            cell.titleLabel.text = results?.original_title
-
-            cell.titleLabel.text = results?.vote_average?.description
-            cell.releaseDateLabel.text = results?.release_date?.description
-            cell.languagesLabel.text = results?.original_language?.description
-//            cell.titleLabel.text = results?.g?.description
-            cell.ratingLabel.text = (results?.vote_average!.description)! + " " + (results?.vote_count!.description)!
-            cell.aboutLabel.text = results?.overview?.description
-            return cell
-        } else {
-            
-            let cell = tableView.dequeueReusableCell(withIdentifier: "DetailsTableViewCell", for: indexPath) as! DetailsTableViewCell
-            cell.movieImage.image = deafultImage
             cell.titleLabel.text = results?.original_title
             
             let attributsNormal = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16, weight: .bold)]
@@ -123,27 +110,41 @@ extension DetailsViewController : UITableViewDataSource {
 
             cell.aboutLabel.text = results?.overview?.description
             return cell
-        }
-    }
-}
+        } else {
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "DetailsTableViewCell", for: indexPath) as! DetailsTableViewCell
+            cell.titleLabel.text = offlineResult?.original_title
+            
+            let attributsNormal = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16, weight: .bold)]
+            let attributsBold = [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16, weight: .regular)]
+            
+            let durationAttributedString = NSMutableAttributedString(string: "Duration : ", attributes:attributsNormal)
+            let durationBoldStringPart = NSMutableAttributedString(string: "I don't know, what I have to show", attributes:attributsBold)
+            durationAttributedString.append(durationBoldStringPart)
+            cell.durationLabel.attributedText = durationAttributedString
+            
+            let releaseDateAttributedString = NSMutableAttributedString(string: "Release Date : ", attributes:attributsNormal)
+            let releaseDateBoldStringPart = NSMutableAttributedString(string: (offlineResult?.release_date)!, attributes:attributsBold)
+            releaseDateAttributedString.append(releaseDateBoldStringPart)
+            cell.releaseDateLabel.attributedText = releaseDateAttributedString
+            
+            let languagesAttributedString = NSMutableAttributedString(string: "Languages : ", attributes:attributsNormal)
+            let languagesBoldStringPart = NSMutableAttributedString(string: (offlineResult?.original_language!.description)!, attributes:attributsBold)
+            languagesAttributedString.append(languagesBoldStringPart)
+            cell.languagesLabel.attributedText = languagesAttributedString
+            
+            let genresAttributedString = NSMutableAttributedString(string: "Genres : ", attributes:attributsNormal)
+            let genresBoldStringPart = NSMutableAttributedString(string:  "I don't know, what I have to show", attributes:attributsBold)
+            genresAttributedString.append(genresBoldStringPart)
+            cell.genersLabel.attributedText = genresAttributedString
+            
+            let ratingAttributedString = NSMutableAttributedString(string: "Rating : ", attributes:attributsNormal)
+            let ratingsBoldStringPart = NSMutableAttributedString(string: (offlineResult?.vote_average.description)! + " & " + ((offlineResult?.vote_count.description)!), attributes:attributsBold)
+            ratingAttributedString.append(ratingsBoldStringPart)
+            cell.ratingLabel.attributedText = ratingAttributedString
 
-extension DetailsViewController {
-    
-    func imageDownload() {
-        //lazy loading
-        let session = URLSession.shared
-        let imageURL = URL(string: "https://image.tmdb.org/t/p/w500" + ((results?.poster_path!)!))
-        let task = session.dataTask(with: imageURL!) { (data, response, error) in
-            guard error == nil else {
-                return
-            }
-            DispatchQueue.main.async {
-                if let image = UIImage(data: data!) {
-                    // calling from API
-                    self.movieImage.image = image
-                }
-            }
+            cell.aboutLabel.text = offlineResult?.overview?.description
+            return cell
         }
-        task.resume()
     }
 }

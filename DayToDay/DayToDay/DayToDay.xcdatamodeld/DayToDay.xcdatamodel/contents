@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="15702" systemVersion="19D76" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Genre_ids" representedClassName="Genre_ids" syncable="YES" codeGenerationType="class"/>
-    <entity name="Result" representedClassName="Result" syncable="YES" codeGenerationType="class">
+    <entity name="OfflineResults" representedClassName="OfflineResults" syncable="YES" codeGenerationType="class">
         <attribute name="adult" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="backdrop_path" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -9,7 +9,7 @@
         <attribute name="original_title" optional="YES" attributeType="String"/>
         <attribute name="overview" optional="YES" attributeType="String"/>
         <attribute name="popularity" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="poster_path" optional="YES" attributeType="String"/>
+        <attribute name="poster_path" optional="YES" attributeType="Binary"/>
         <attribute name="release_date" optional="YES" attributeType="String"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="video" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -17,7 +17,7 @@
         <attribute name="vote_count" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="Result" positionX="-63" positionY="-18" width="128" height="238"/>
         <element name="Genre_ids" positionX="-54" positionY="90" width="128" height="43"/>
+        <element name="OfflineResults" positionX="-63" positionY="-18" width="128" height="238"/>
     </elements>
 </model>

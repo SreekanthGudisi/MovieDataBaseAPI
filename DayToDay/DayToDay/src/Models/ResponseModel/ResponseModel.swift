@@ -16,7 +16,7 @@ struct ResponseModel : Codable {
 	let page : Int?
 	let total_results : Int?
 	let total_pages : Int?
-	let results : [Results]?
+    var results : [Results]?
 
 	enum CodingKeys: String, CodingKey {
 
