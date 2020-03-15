@@ -26,4 +26,5 @@ class SharedInformation {
     private init() {
         // Fetch logged in keys
     }
+    
 }

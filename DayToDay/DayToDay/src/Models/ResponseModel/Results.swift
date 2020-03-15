@@ -67,6 +67,3 @@ struct Results : Codable {
 		release_date = try values.decodeIfPresent(String.self, forKey: .release_date)
 	}
 }
-
-
-

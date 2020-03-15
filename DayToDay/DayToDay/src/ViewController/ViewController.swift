@@ -28,6 +28,7 @@ class ViewController: UIViewController {
     private var offlineResultsArray = [OfflineResults]()
     private var offlineResultsfilteredData = [OfflineResults]()
     private var checkInternet = false
+    var selectedImageOrDocumentURLData = Data()
     
     private var OFFSET = 7
     private var itemsCount = 0
@@ -114,6 +115,7 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
                 let results = (self.isSeacrhActive) ? self.filteredData[indexPath.row] : resultsArray[indexPath.row]
+                print("results", results)
                 cell.movieImage.image = deafultImage
                 cell.titleLabel.text = results.original_title
                 cell.voteAverageLabel.text = results.vote_average?.description
@@ -130,6 +132,7 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
                 let results = (self.isSeacrhActive) ? self.offlineResultsfilteredData[indexPath.row] : offlineResultsArray[indexPath.row]
+                print("results", results)
                 cell.movieImage.image = deafultImage
                 cell.titleLabel.text = results.original_title
                 cell.voteAverageLabel.text = results.vote_average.description
@@ -145,22 +148,27 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
 
+        if cell.isKind(of: LoadingCell.self) {
+            return
+        }
+        
+        let existingCell = cell as! TableViewCell
+        
         if checkInternet == true {
             
             let posterPathArray = resultsArray[indexPath.row]
             if posterPathArray.poster_path?.count == nil {
-                (cell as? TableViewCell)?.movieImage.image = deafultImage
+                existingCell.movieImage.image = deafultImage
                 print(indexPath.row)
                 return
             } else {
-                print(posterPathArray.poster_path as Any)
                 // Checking Cache
                 if let dict = UserDefaults.standard.object(forKey: "ImageCache") as? [String:String]{
                     if let path = dict["https://image.tmdb.org/t/p/w500" + (posterPathArray.poster_path!)] {
                         if let data = try? Data(contentsOf: URL(fileURLWithPath: path)) {
                             let img = UIImage(data: data)
                             // If cache is there, Loading into cell from Cache
-                            (cell as? TableViewCell)?.movieImage.image = img
+                            existingCell.movieImage.image = img
                             return
                         }
                     }
@@ -176,7 +184,7 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
                         NSLog("cell number \(indexPath.row)")
                         if let image = UIImage(data: data!) {
                             // calling from API
-                            (cell as? TableViewCell)?.movieImage.image = image
+                            existingCell.movieImage.image = image
                             // StoringImages into Cache
                             StorageImageViewController.storeImage(urlstring: (posterPathArray.poster_path!) as String, img: image)
                         }
@@ -185,17 +193,19 @@ extension ViewController : UITableViewDelegate, UITableViewDataSource {
                 task.resume()
             }
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath) as! TableViewCell
-            let results = offlineResultsArray[indexPath.row]
-            cell.movieImage.clipsToBounds = true
-            cell.movieImage.layer.cornerRadius = 10
-            print("results.poster_path", results.poster_path as Any)
-            if results.poster_path == nil {
-                cell.movieImage.image = deafultImage
-            } else{
-                if let imageData = results.poster_path {
+            
+            if offlineResultsArray.count == 0 {
+                APIInterface.instance().showAlert(title: "OOPS", message: "Seems to be offline storage is empty. Please run it on with internet and try again")
+            } else {
+                let results = offlineResultsArray[indexPath.row]
+                existingCell.movieImage.clipsToBounds = true
+                existingCell.movieImage.layer.cornerRadius = 10
+                if results.poster_path == nil {
+                    existingCell.movieImage.image = deafultImage
+                } else{
+                    let imageData = results.poster_path!
                     let coredataLoadedimage = UIImage(data: imageData)
-                    cell.movieImage.image = coredataLoadedimage
+                    existingCell.movieImage.image = coredataLoadedimage
                 }
             }
         }

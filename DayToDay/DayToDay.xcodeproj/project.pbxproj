@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		201C778C241D306F00569BB9 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 201C778B241D306F00569BB9 /* CoreDataManager.swift */; };
 		206E3FDC240FA58400171E22 /* APIInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FCA240FA58400171E22 /* APIInterface.swift */; };
 		206E3FE1240FA7D100171E22 /* GetMovieDataBaseAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FE0240FA7D100171E22 /* GetMovieDataBaseAPI.swift */; };
 		206E3FE62410C5EE00171E22 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FE52410C5EE00171E22 /* Reachability.swift */; };
 		206E3FE92410CC5400171E22 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FE82410CC5400171E22 /* PersistenceService.swift */; };
-		206E3FEB2410EDF300171E22 /* SaveCoreData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FEA2410EDF300171E22 /* SaveCoreData.swift */; };
 		206E3FF42413FFD400171E22 /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FF32413FFD400171E22 /* DetailsViewController.swift */; };
 		206E3FF62413FFE100171E22 /* DetailsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 206E3FF52413FFE100171E22 /* DetailsTableViewCell.swift */; };
 		209BC55D240E2884004D4E7D /* DayToDay.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 209BC55B240E2884004D4E7D /* DayToDay.xcdatamodeld */; };
@@ -55,11 +55,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		201C778B241D306F00569BB9 /* CoreDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		206E3FCA240FA58400171E22 /* APIInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIInterface.swift; sourceTree = "<group>"; };
 		206E3FE0240FA7D100171E22 /* GetMovieDataBaseAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMovieDataBaseAPI.swift; sourceTree = "<group>"; };
 		206E3FE52410C5EE00171E22 /* Reachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		206E3FE82410CC5400171E22 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
-		206E3FEA2410EDF300171E22 /* SaveCoreData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveCoreData.swift; sourceTree = "<group>"; };
 		206E3FF32413FFD400171E22 /* DetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
 		206E3FF52413FFE100171E22 /* DetailsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTableViewCell.swift; sourceTree = "<group>"; };
 		209BC54F240E2884004D4E7D /* DayToDay.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DayToDay.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -319,7 +319,7 @@
 		20BB839A241522740081E8E6 /* CoreDataModel */ = {
 			isa = PBXGroup;
 			children = (
-				206E3FEA2410EDF300171E22 /* SaveCoreData.swift */,
+				201C778B241D306F00569BB9 /* CoreDataManager.swift */,
 			);
 			path = CoreDataModel;
 			sourceTree = "<group>";
@@ -467,7 +467,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				206E3FEB2410EDF300171E22 /* SaveCoreData.swift in Sources */,
 				209BC5E9240E518E004D4E7D /* SceneDelegate.swift in Sources */,
 				209BC5E8240E518E004D4E7D /* AppDelegate.swift in Sources */,
 				209BC5E3240E518E004D4E7D /* ViewModel.swift in Sources */,
@@ -479,6 +478,7 @@
 				209BC5E4240E518E004D4E7D /* GlobalVariableInformation.swift in Sources */,
 				209BC5EA240E518E004D4E7D /* ResponseModel.swift in Sources */,
 				206E3FDC240FA58400171E22 /* APIInterface.swift in Sources */,
+				201C778C241D306F00569BB9 /* CoreDataManager.swift in Sources */,
 				209BC5ED240E518E004D4E7D /* ViewController.swift in Sources */,
 				206E3FF42413FFD400171E22 /* DetailsViewController.swift in Sources */,
 				209BC5F8240F697A004D4E7D /* SharedInformation.swift in Sources */,

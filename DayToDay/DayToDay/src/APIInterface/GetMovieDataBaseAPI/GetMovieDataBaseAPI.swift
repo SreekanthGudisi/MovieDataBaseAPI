@@ -14,6 +14,8 @@ class GetMovieDataBaseAPI {
 
     private static var getMovieDataBaseAPI : GetMovieDataBaseAPI? = nil
     static var methodName = "/movie?api_key="
+    var resultsArray = [Results]()
+    var offilineArray = [OfflineResults]()
     
     static func instance() -> GetMovieDataBaseAPI {
         
@@ -22,8 +24,8 @@ class GetMovieDataBaseAPI {
         }
         return getMovieDataBaseAPI!
     }
-    
-    //MARK:- OTPService
+
+    //MARK:- GET API 
     public func getMovieDataBaseAPIServiceDetails(_ completionHandler: @escaping (Bool) -> Void) {
         
         Reachability.isInternetAvailable(webSiteToPing: nil) { (isInternetAvailable) in
@@ -56,8 +58,24 @@ class GetMovieDataBaseAPI {
                     do {
                         let jsonDecoder = JSONDecoder()
                         let loadResponseModel = try jsonDecoder.decode(ResponseModel.self, from: data)
-                        SaveCoreData.saveCoreDataModel(loadResponseModel.results!)
                         SharedInformation.instance().resultsResponse = loadResponseModel.results
+                        
+                        // Saving Response Into CoreData
+                        for details in SharedInformation.instance().resultsResponse! {
+                            
+                            let posterPath : String = "https://image.tmdb.org/t/p/w500" + details.poster_path!
+                            let urlString : URL = URL(string: posterPath)!
+                            print(urlString as Any)
+                            //create the session object
+                            let task = URLSession.shared.dataTask(with: urlString) { (posterPathData, respose, error) in
+                                DispatchQueue.main.async {
+                                    
+                                    CoreDataManager.instance().savingCoreDataIntoCoreData(popularity: details.popularity!, voteCount: details.vote_count!, videoOfMovie: details.video!, poster_path: posterPathData!, id: details.id!, adult: details.adult!, backdrop_path: details.backdrop_path!, language: details.original_language!, originalTitle: details.original_title!, average: details.vote_average!, overView: details.overview!, releaseDate: details.release_date!, Title: details.title!)
+                                }
+                            }
+                            task.resume()
+                        }
+                        
                         completionHandler(true)
                         let httpResponse = response as? HTTPURLResponse
                         if httpResponse!.statusCode.description == "400" {
